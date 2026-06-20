@@ -72,6 +72,9 @@
 
 	const played = $derived(parsed ? playedMatchIndices(parsed) : []);
 	const standings = $derived(parsed ? computeStandings(parsed, doubles, throughCount, config) : []);
+	const targetStandings = $derived(
+		parsed ? computeStandings(parsed, doubles, throughCount, targetScenario.config) : []
+	);
 	const currentMatch = $derived(
 		parsed && throughCount > 0 ? parsed.matches[played[throughCount - 1]] : null
 	);
@@ -100,11 +103,13 @@
 
 	{#if parsed && played.length > 0}
 		<div class="flex shrink-0 flex-col gap-2 lg:flex-row lg:items-stretch lg:gap-4">
-			<CalendarSlider bind:value={throughCount} total={played.length} />
+			<div class="flex flex-row items-stretch gap-2 lg:contents">
+				<CalendarSlider bind:value={throughCount} total={played.length} />
 
-			{#if currentMatch}
-				<MatchCard match={currentMatch} index={throughCount} total={played.length} />
-			{/if}
+				{#if currentMatch}
+					<MatchCard match={currentMatch} index={throughCount} total={played.length} />
+				{/if}
+			</div>
 
 			<RulesToggles
 				bind:partialSuccess
@@ -129,7 +134,7 @@
 				class:tab-active={tab === 'diff'}
 				onclick={() => (tab = 'diff')}
 			>
-				Diferencias
+				Histogramas y Diferencias
 			</button>
 		</div>
 
@@ -149,6 +154,7 @@
 							{throughCount}
 							base={baseScenario}
 							target={targetScenario}
+							standings={targetStandings}
 							bind:hoveredPlayer
 						/>
 					</div>
@@ -161,6 +167,7 @@
 							{throughCount}
 							base={baseScenario}
 							target={liveTargetScenario}
+							{standings}
 							bind:hoveredPlayer
 						/>
 					</div>

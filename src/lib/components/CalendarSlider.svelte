@@ -9,7 +9,7 @@
 </script>
 
 <fieldset
-	class="fieldset bg-base-100 border-base-300 rounded-box border p-2 shadow-sm lg:flex-1 lg:p-4"
+	class="fieldset bg-base-100 border-base-300 rounded-box flex-1 border p-2 shadow-sm lg:p-4"
 >
 	<legend class="fieldset-legend">Calendario</legend>
 	<div class="flex h-full flex-col justify-center gap-2 lg:gap-4">

@@ -31,13 +31,15 @@
 {/snippet}
 
 <fieldset
-	class="fieldset bg-base-100 border-base-300 rounded-box flex items-center justify-center border p-2 shadow-sm lg:flex-1 lg:p-4"
+	class="fieldset bg-base-100 border-base-300 rounded-box flex min-w-0 flex-1 items-center justify-center border p-2 shadow-sm lg:p-4"
 >
 	<legend class="fieldset-legend">Partido {index} de {total}</legend>
 	<div class="flex w-full items-center justify-center gap-2 text-sm lg:gap-5 lg:text-base">
-		<div class="flex flex-1 items-center justify-end gap-2 text-right">
-			<span class="font-medium">{match.home}</span>
-			{@render flag(homeCode, match.home)}
+		<div
+			class="flex min-w-0 flex-1 flex-col items-stretch gap-1 text-center lg:flex-row lg:items-center lg:justify-end lg:gap-2 lg:text-right"
+		>
+			<span class="truncate font-medium">{match.home}</span>
+			<span class="self-center">{@render flag(homeCode, match.home)}</span>
 		</div>
 
 		<div class="flex flex-col items-center">
@@ -53,9 +55,11 @@
 			{/if}
 		</div>
 
-		<div class="flex flex-1 items-center gap-2">
-			{@render flag(awayCode, match.away)}
-			<span class="font-medium">{match.away}</span>
+		<div
+			class="flex min-w-0 flex-1 flex-col items-stretch gap-1 text-center lg:flex-row lg:items-center lg:gap-2 lg:text-left"
+		>
+			<span class="order-1 truncate font-medium lg:order-2">{match.away}</span>
+			<span class="order-2 self-center lg:order-1">{@render flag(awayCode, match.away)}</span>
 		</div>
 	</div>
 </fieldset>
