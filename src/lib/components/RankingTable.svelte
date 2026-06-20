@@ -53,7 +53,9 @@
 							{pred.score.home}-{pred.score.away}
 						</div>
 					{:else}
-						<span class="text-base-content/50 text-xs">Sin pronóstico</span>
+						<div class="badge badge-neutral">
+							#-#
+						</div>
 					{/if}
 				</td>
 				<td
