@@ -39,7 +39,7 @@ export function scorePrediction(
 	if (outcome === 'exact' && config.exactSuccess) {
 		category = 'exact';
 		base = RULES.ExactSuccess.points;
-	} else if (outcome === 'partial' && config.partialSuccess) {
+	} else if ((outcome === 'exact' || outcome === 'partial') && config.partialSuccess) {
 		category = 'partial';
 		base = RULES.PartialSuccess.points;
 	} else if (outcome === 'exact' || outcome === 'partial' || outcome === 'success') {
