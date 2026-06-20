@@ -8,6 +8,7 @@
 	import CalendarSlider from '$lib/components/CalendarSlider.svelte';
 	import RulesToggles from '$lib/components/RulesToggles.svelte';
 	import RankingTable from '$lib/components/RankingTable.svelte';
+	import RankingStats from '$lib/components/RankingStats.svelte';
 	import RankingComparison from '$lib/components/RankingComparison.svelte';
 	import pronosticosCsv from '$lib/data/pronosticos.csv?raw';
 	import doblesCsv from '$lib/data/dobles.csv?raw';
@@ -134,7 +135,10 @@
 
 		<section class="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
 			{#if tab === 'ranking'}
-				<RankingTable {standings} />
+				<div class="flex flex-col gap-4">
+					<RankingStats {standings} />
+					<RankingTable {standings} />
+				</div>
 			{:else}
 				<div class="grid grid-cols-1 gap-6 lg:h-full lg:grid-cols-2">
 					<div class="flex min-h-0 flex-col gap-2">

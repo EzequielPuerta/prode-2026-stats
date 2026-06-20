@@ -27,6 +27,11 @@ export interface ParsedDoubles {
 	byPlayer: Record<string, number[]>;
 }
 
+export interface MatchPrediction {
+	score: Score | null;
+	category: Outcome | null;
+}
+
 export interface Standing {
 	rank: number;
 	name: string;
@@ -36,6 +41,9 @@ export interface Standing {
 	success: number;
 	errors: number;
 	notPlayed: number;
+	prediction: MatchPrediction;
+	currentMatchPoints: number;
+	previousRank: number;
 }
 
 // --- Rules ---

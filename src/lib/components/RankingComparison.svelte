@@ -83,27 +83,27 @@
 <div class="flex h-full flex-col gap-4">
 	{#if stats}
 		<div class="stats stats-vertical sm:stats-horizontal w-full shrink-0 shadow">
-			<div class="stat">
+			<div class="stat w-50">
 				<div class="stat-title">Diferencia promedio abs.</div>
 				<div class="stat-value text-2xl">{stats.mean.toFixed(1)}</div>
 				<div class="stat-desc">posiciones |Δ|</div>
 			</div>
-			<div class="stat">
+			<div class="stat w-40">
 				<div class="stat-title">Mediana abs.</div>
 				<div class="stat-value text-2xl">{stats.median}</div>
 				<div class="stat-desc">posiciones |Δ|</div>
 			</div>
-			<div class="stat">
+			<div class="stat w-40">
 				<div class="stat-title">Mayor subida</div>
 				<div class="stat-value text-success text-2xl">+{stats.riser.diff}</div>
 				<div class="stat-desc max-w-[12ch] truncate">{stats.riser.name}</div>
 			</div>
-			<div class="stat">
+			<div class="stat w-40">
 				<div class="stat-title">Mayor caída</div>
 				<div class="stat-value text-error text-2xl">{stats.faller.diff}</div>
 				<div class="stat-desc max-w-[12ch] truncate">{stats.faller.name}</div>
 			</div>
-			<div class="stat">
+			<div class="stat w-40">
 				<div class="stat-title">Afectados</div>
 				<div class="stat-value text-2xl">{stats.affected}/{stats.total}</div>
 				<div class="stat-desc">cambian de puesto</div>

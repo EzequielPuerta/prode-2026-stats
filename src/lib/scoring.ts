@@ -7,7 +7,8 @@ import type {
 	Standing,
 	ScoredPrediction,
 	ScoringConfig,
-	RankingDiff
+	RankingDiff,
+	MatchPrediction
 } from './types';
 import { playedMatchIndices } from './predictions';
 
@@ -53,16 +54,27 @@ export function scorePrediction(
 	return { category, points };
 }
 
-export function computeStandings(
+interface AggregatedRow {
+	name: string;
+	points: number;
+	exact: number;
+	partial: number;
+	success: number;
+	errors: number;
+	notPlayed: number;
+	prediction: MatchPrediction;
+	currentMatchPoints: number;
+}
+
+function aggregateRows(
 	parsed: ParsedProde,
 	doubles: ParsedDoubles | null,
-	throughCount: number,
+	included: number[],
 	config: ScoringConfig
-): Standing[] {
-	const played = playedMatchIndices(parsed);
-	const included = played.slice(0, Math.max(0, throughCount));
+): AggregatedRow[] {
+	const currentIndex = included.length > 0 ? included[included.length - 1] : null;
 
-	const rows = parsed.players.map((p) => {
+	return parsed.players.map((p) => {
 		const doubledSet = new Set(doubles?.byPlayer[p.name] ?? []);
 		let points = 0;
 		let exact = 0;
@@ -70,6 +82,8 @@ export function computeStandings(
 		let success = 0;
 		let errors = 0;
 		let notPlayed = 0;
+		let prediction: MatchPrediction = { score: null, category: null };
+		let currentMatchPoints = 0;
 
 		for (const idx of included) {
 			const pred = p.predictions[idx];
@@ -85,12 +99,32 @@ export function computeStandings(
 			else if (scored.category === 'partial') partial++;
 			else if (scored.category === 'success') success++;
 			else errors++;
+
+			if (idx === currentIndex) {
+				prediction = { score: pred, category: scored.category };
+				currentMatchPoints = scored.points;
+			}
 		}
 
-		return { name: p.name, points, exact, partial, success, errors, notPlayed };
+		return {
+			name: p.name,
+			points,
+			exact,
+			partial,
+			success,
+			errors,
+			notPlayed,
+			prediction,
+			currentMatchPoints
+		};
 	});
+}
 
-	rows.sort(
+function rankRows(
+	rows: AggregatedRow[],
+	config: ScoringConfig
+): (AggregatedRow & { rank: number })[] {
+	const sorted = [...rows].sort(
 		(a, b) =>
 			b.points - a.points ||
 			b.exact - a.exact ||
@@ -100,19 +134,42 @@ export function computeStandings(
 			a.name.localeCompare(b.name)
 	);
 
-	const sameRank = (a: (typeof rows)[number], b: (typeof rows)[number]) =>
+	const sameRank = (a: AggregatedRow, b: AggregatedRow) =>
 		a.points === b.points &&
 		a.exact === b.exact &&
 		(!config.partialSuccess || a.partial === b.partial) &&
 		a.success === b.success &&
 		a.errors === b.errors;
 
-	const standings: Standing[] = [];
-	for (let i = 0; i < rows.length; i++) {
-		const rank = i > 0 && sameRank(rows[i], rows[i - 1]) ? standings[i - 1].rank : i + 1;
-		standings.push({ rank, ...rows[i] });
+	const ranked: (AggregatedRow & { rank: number })[] = [];
+	for (let i = 0; i < sorted.length; i++) {
+		const rank = i > 0 && sameRank(sorted[i], sorted[i - 1]) ? ranked[i - 1].rank : i + 1;
+		ranked.push({ rank, ...sorted[i] });
 	}
-	return standings;
+	return ranked;
+}
+
+export function computeStandings(
+	parsed: ParsedProde,
+	doubles: ParsedDoubles | null,
+	throughCount: number,
+	config: ScoringConfig
+): Standing[] {
+	const played = playedMatchIndices(parsed);
+	const included = played.slice(0, Math.max(0, throughCount));
+
+	const ranked = rankRows(aggregateRows(parsed, doubles, included, config), config);
+
+	const previousRanked = rankRows(
+		aggregateRows(parsed, doubles, included.slice(0, -1), config),
+		config
+	);
+	const previousRankByName = new Map(previousRanked.map((r) => [r.name, r.rank]));
+
+	return ranked.map((r) => ({
+		...r,
+		previousRank: previousRankByName.get(r.name) ?? r.rank
+	}));
 }
 
 export function rankingDifferences(
