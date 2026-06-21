@@ -115,3 +115,7 @@ export interface RankingDiff {
 	targetRank: number;
 	diff: number;
 }
+
+export interface ComparisonRow extends RankingDiff {
+	points: number;
+}
