@@ -15,6 +15,8 @@ export interface MatchInfo {
 export interface PlayerRow {
 	name: string;
 	sitePoints: number;
+	bonusPoints: number;
+	loadedBonus: boolean;
 	predictions: (Score | null)[];
 }
 
@@ -36,6 +38,9 @@ export interface Standing {
 	rank: number;
 	name: string;
 	points: number;
+	matchPoints: number;
+	bonusPoints: number;
+	loadedBonus: boolean;
 	exact: number;
 	partial: number;
 	success: number;

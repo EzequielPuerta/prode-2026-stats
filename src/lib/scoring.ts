@@ -57,6 +57,9 @@ export function scorePrediction(
 interface AggregatedRow {
 	name: string;
 	points: number;
+	matchPoints: number;
+	bonusPoints: number;
+	loadedBonus: boolean;
 	exact: number;
 	partial: number;
 	success: number;
@@ -76,7 +79,7 @@ function aggregateRows(
 
 	return parsed.players.map((p) => {
 		const doubledSet = new Set(doubles?.byPlayer[p.name] ?? []);
-		let points = 0;
+		let matchPoints = 0;
 		let exact = 0;
 		let partial = 0;
 		let success = 0;
@@ -94,7 +97,7 @@ function aggregateRows(
 				continue;
 			}
 			const scored = scorePrediction(pred, result, config, doubledSet.has(idx));
-			points += scored.points;
+			matchPoints += scored.points;
 			if (scored.category === 'exact') exact++;
 			else if (scored.category === 'partial') partial++;
 			else if (scored.category === 'success') success++;
@@ -108,7 +111,10 @@ function aggregateRows(
 
 		return {
 			name: p.name,
-			points,
+			points: matchPoints + p.bonusPoints,
+			matchPoints,
+			bonusPoints: p.bonusPoints,
+			loadedBonus: p.loadedBonus,
 			exact,
 			partial,
 			success,

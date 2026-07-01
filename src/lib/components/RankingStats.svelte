@@ -20,6 +20,8 @@
 			{ exact: 0, partial: 0, success: 0, miss: 0, notPlayed: 0 }
 		);
 
+		const noBonus = standings.filter((s) => !s.loadedBonus).length;
+
 		const riser = standings.reduce(
 			(best, s) =>
 				s.previousRank - s.rank > (best?.diff ?? 0) ? { s, diff: s.previousRank - s.rank } : best,
@@ -31,7 +33,7 @@
 			null as { s: Standing; diff: number } | null
 		);
 
-		return { leaders, counts, riser, faller };
+		return { leaders, counts, noBonus, riser, faller };
 	});
 </script>
 
@@ -68,6 +70,11 @@
 			<div class="stat-title truncate text-xs lg:text-sm">Sin jugar</div>
 			<div class="stat-value text-base-content/50 text-lg lg:text-2xl">{stats.counts.notPlayed}</div>
 			<div class="stat-desc truncate">partido actual</div>
+		</div>
+		<div class="stat w-28 px-4 py-3 lg:w-40 lg:px-6 lg:py-4">
+			<div class="stat-title truncate text-xs lg:text-sm">Sin bonus</div>
+			<div class="stat-value text-base-content/50 text-lg lg:text-2xl">{stats.noBonus}</div>
+			<div class="stat-desc truncate">no cargaron bonus</div>
 		</div>
 		<div class="stat w-28 px-4 py-3 lg:w-40 lg:px-6 lg:py-4">
 			<div class="stat-title truncate text-xs lg:text-sm">Mayor subida</div>

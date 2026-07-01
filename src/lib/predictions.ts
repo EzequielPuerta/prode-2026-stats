@@ -27,18 +27,18 @@ export function buildParsed(rows: string[][]): ParsedProde {
 		throw new Error('El CSV está vacío.');
 	}
 	const header = rows[0];
-	if (header.length < 4) {
+	if (header.length < 7) {
 		throw new Error('El CSV no tiene el formato esperado (faltan columnas de partidos).');
 	}
 
-	const matches: MatchInfo[] = header.slice(3).map((h, i) => parseMatchHeader(h, i));
+	const matches: MatchInfo[] = header.slice(6).map((h, i) => parseMatchHeader(h, i));
 	const players: PlayerRow[] = [];
 
 	for (const r of rows.slice(1)) {
 		const name = (r[1] ?? '').trim();
 		if (!name) continue;
 
-		const predictions = matches.map((mt) => parseScore(r[3 + mt.index] ?? ''));
+		const predictions = matches.map((mt) => parseScore(r[6 + mt.index] ?? ''));
 
 		if (name === NAME_REAL_RESULT) {
 			matches.forEach((mt, i) => {
@@ -49,7 +49,9 @@ export function buildParsed(rows: string[][]): ParsedProde {
 
 		players.push({
 			name,
-			sitePoints: Number((r[2] ?? '').trim()) || 0,
+			sitePoints: Number((r[3] ?? '').trim()) || 0,
+			bonusPoints: Number((r[4] ?? '').trim()) || 0,
+			loadedBonus: (r[5] ?? '').trim().toLowerCase() === 'sí',
 			predictions
 		});
 	}
