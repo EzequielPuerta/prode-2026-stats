@@ -8,13 +8,15 @@
 		height,
 		bucketSize = 5,
 		hoveredPlayer = null,
-		histogramMode = $bindable(false)
+		histogramMode = $bindable(false),
+		maxCount: fixedMaxCount
 	}: {
 		rows: ComparisonRow[];
 		height: number;
 		bucketSize?: number;
 		hoveredPlayer?: string | null;
 		histogramMode?: boolean;
+		maxCount?: number;
 	} = $props();
 
 	type Bucket = { label: string; start: number; end: number; players: ComparisonRow[] };
@@ -37,7 +39,9 @@
 	});
 
 	const bucketLabels = $derived(buckets.map((b) => b.label));
-	const maxCount = $derived(buckets.length ? Math.max(...buckets.map((b) => b.players.length)) : 0);
+	const maxCount = $derived(
+		fixedMaxCount ?? (buckets.length ? Math.max(...buckets.map((b) => b.players.length)) : 0)
+	);
 	const yDomain = $derived([0, maxCount * 1.15 || 1]);
 
 	const hoveredBucketLabel = $derived.by(() => {
@@ -78,9 +82,9 @@
 
 <Plot
 	{height}
-	marginBottom={40}
+	marginBottom={60}
 	marginLeft={40}
-	x={{ domain: bucketLabels, label: 'Puntos' }}
+	x={{ domain: bucketLabels, label: 'Puntos', tickRotate: -90 }}
 	y={{ label: 'Jugadores', grid: true, domain: yDomain }}
 >
 	<PlotProbe onscales={(s) => (scales = s as Scales)} />

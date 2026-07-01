@@ -67,7 +67,7 @@
 </script>
 
 <div class="overflow-x-auto">
-	<table class="table-zebra table-fixed table table-xs lg:table-md min-w-max">
+	<table class="table-zebra table-fixed table table-xs lg:table-md">
 		<thead class="bg-base-100 sticky top-0 z-10">
 			<tr>
 				<th class="w-10 cursor-pointer select-none" onclick={() => toggleSort('rank')}>

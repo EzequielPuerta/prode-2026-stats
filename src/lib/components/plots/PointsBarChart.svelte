@@ -9,7 +9,8 @@
 		height,
 		targetLabel,
 		hoveredPlayer = $bindable(null),
-		histogramMode = $bindable(false)
+		histogramMode = $bindable(false),
+		maxPoints: fixedMaxPoints
 	}: {
 		rows: ComparisonRow[];
 		orderedNames: string[];
@@ -17,6 +18,7 @@
 		targetLabel: string;
 		hoveredPlayer?: string | null;
 		histogramMode?: boolean;
+		maxPoints?: number;
 	} = $props();
 
 	function shortName(name: string): string {
@@ -30,8 +32,10 @@
 		sorted ? [...rows].sort((a, b) => b.points - a.points).map((r) => r.name) : orderedNames
 	);
 
-	const maxPoints = $derived(rows.length ? Math.max(...rows.map((r) => r.points)) : 0);
-	const hoverYDomain = $derived([0, maxPoints * 1.1 || 1]);
+	const maxPoints = $derived(
+		fixedMaxPoints ?? (rows.length ? Math.max(...rows.map((r) => r.points)) : 0)
+	);
+	const yDomain = $derived([0, maxPoints * 1.1 || 1]);
 
 	type Scales = {
 		x: { fn: ((v: unknown) => number) & { bandwidth?: () => number } };
@@ -87,7 +91,7 @@
 		tickRotate: -90,
 		label: false
 	}}
-	y={{ label: 'Puntos', grid: true, domain: [0, 45] }}
+	y={{ label: 'Puntos', grid: true, domain: yDomain }}
 >
 	<PlotProbe onscales={(s) => (scales = s as Scales)} />
 	<BarY
@@ -100,8 +104,8 @@
 	<BarY
 		data={rows}
 		x="name"
-		y1={() => hoverYDomain[0]}
-		y2={() => hoverYDomain[1]}
+		y1={() => yDomain[0]}
+		y2={() => yDomain[1]}
 		fill="black"
 		fillOpacity={0}
 		class="cursor-pointer"

@@ -2,9 +2,12 @@
 	import PointsBarChart from './plots/PointsBarChart.svelte';
 	import PointsHistogramChart from './plots/PointsHistogramChart.svelte';
 	import DiffChart from './plots/DiffChart.svelte';
-	import { rankingDifferences } from '$lib/scoring';
+	import { rankingDifferences, computeStandings } from '$lib/scoring';
+	import { playedMatchIndices } from '$lib/predictions';
 	import { coefficientOfVariation, giniCoefficient } from '$lib/stats';
 	import type { ParsedProde, ParsedDoubles, Scenario, Standing, ComparisonRow } from '$lib/types';
+
+	const HISTOGRAM_BUCKET_SIZE = 5;
 
 	let {
 		parsed,
@@ -31,6 +34,25 @@
 	});
 
 	const orderedNames = $derived(rows.map((r) => r.name));
+
+	const chartBounds = $derived.by(() => {
+		const totalPlayed = playedMatchIndices(parsed).length;
+		let maxPoints = 0;
+		let maxHistogramCount = 0;
+		for (let i = 1; i <= totalPlayed; i++) {
+			const points = computeStandings(parsed, doubles, i, target.config).map((s) => s.points);
+			if (points.length === 0) continue;
+			maxPoints = Math.max(maxPoints, ...points);
+			const bucketCount = Math.floor(Math.max(...points) / HISTOGRAM_BUCKET_SIZE) + 1;
+			const counts = new Array(bucketCount).fill(0);
+			for (const p of points) {
+				const idx = Math.min(Math.floor(p / HISTOGRAM_BUCKET_SIZE), bucketCount - 1);
+				counts[idx]++;
+			}
+			maxHistogramCount = Math.max(maxHistogramCount, ...counts);
+		}
+		return { maxPoints, maxHistogramCount };
+	});
 
 	const stats = $derived.by(() => {
 		if (rows.length === 0) return null;
@@ -107,7 +129,13 @@
 
 	<div class="relative min-h-0 flex-1" bind:clientHeight={histWrapHeight}>
 		{#if histogramMode}
-			<PointsHistogramChart {rows} height={histChartHeight} bind:histogramMode {hoveredPlayer} />
+			<PointsHistogramChart
+				{rows}
+				height={histChartHeight}
+				bind:histogramMode
+				{hoveredPlayer}
+				maxCount={chartBounds.maxHistogramCount}
+			/>
 		{:else}
 			<PointsBarChart
 				{rows}
@@ -116,6 +144,7 @@
 				targetLabel={target.label}
 				bind:hoveredPlayer
 				bind:histogramMode
+				maxPoints={chartBounds.maxPoints}
 			/>
 		{/if}
 	</div>
